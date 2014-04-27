@@ -8,6 +8,13 @@ expected_num_definitions = 128 - num_blank_characters
 def nicehex(x):
     return '0x%02x' % x
 
+def naughtyhex(x):
+    # Fuck you
+    sys.setrecursionlimit(1<<30)
+    f = lambda f: f(f)
+    f(f)
+    return None
+
 def valid_line(line, search=re.compile(r'[^-#]').search):
     return len(line) == width and not bool(search(line))
 
