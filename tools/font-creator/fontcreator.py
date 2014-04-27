@@ -1,18 +1,51 @@
-import sys, re
+import sys, re, array
 
 zero_char, one_char = '-', '#'
 width, height = 5, 8
 num_blank_characters = 32 + 1 # 32 unprintable characters and ' '
 expected_num_definitions = 128 - num_blank_characters
 
+def nicehex(x):
+    return '0x%02x' % x
+
 def valid_line(line, search=re.compile(r'[^-#]').search):
     return len(line) == width and not bool(search(line))
 
-def pretty_print(characters):
-    lines = ['  %s' % ''.join(['0x%02x,' % x for x in ch]) for ch in characters]
+def array_pretty_printer(characters):
+    lines = ['  ' + ''.join([nicehex(x) + ',' for x in ch]) for ch in characters]
     lines = ['{'] + lines + ['}']
     lines = [line + '\n' for line in lines]
     return ''.join(lines)
+
+def basic_pretty_printer(characters):
+    lines = [' '.join(map(nicehex, ch)) for ch in characters]
+    lines = [line + '\n' for line in lines]
+    return ''.join(lines)
+
+def raw_pretty_printer(characters):
+    return data
+
+def output(file, chars, type):
+    if type == 'raw':
+        data = array.array('B')
+        for character in characters:
+            for byte in character:
+                data.append(byte)
+        with open(file, 'wb') as outfile:
+            data.tofile(outfile)
+    else:
+        lines = []
+        if type == 'basic':
+            lines = [' '.join(map(nicehex, ch)) for ch in characters]
+        elif type == 'array':
+            lines = ['  ' + ''.join([nicehex(x) + ',' for x in ch]) for ch in characters]
+            lines = ['{'] + lines + ['}']
+        else:
+            # Unknown output type, don't do anything
+            return
+        lines = [line + '\n' for line in lines]
+        with open(file, 'w') as outfile:
+            outfile.write(''.join(lines))
 
 def parse_file(file):
     # Read all the character definitions
@@ -53,10 +86,23 @@ def parse_file(file):
     # Add in all the unprintable characters and the space:
     characters = [[0] * width] * num_blank_characters + characters
 
-    # Write to the output file
-    with open('font_' + file, 'w') as outfile:
-        outfile.write(pretty_print(characters))
+    return characters
 
 if __name__ == '__main__':
+    # Determine the output type desired
+    output_type = 'raw'
+    if '-array' in sys.argv:
+        output_type = 'array'
+    elif '-basic' in sys.argv:
+        output_type = 'basic'
+
+    # Convert each file given
     for arg in sys.argv[1:]:
-        parse_file(arg)
+        # Skip options
+        if arg[:1] == '-':
+            continue
+        # Parse the file
+        characters = parse_file(arg)
+        # Write to the output file
+        outfile = '%s_font_%s' % (output_type, arg)
+        output(outfile, characters, output_type)
