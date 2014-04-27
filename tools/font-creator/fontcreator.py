@@ -11,20 +11,6 @@ def nicehex(x):
 def valid_line(line, search=re.compile(r'[^-#]').search):
     return len(line) == width and not bool(search(line))
 
-def array_pretty_printer(characters):
-    lines = ['  ' + ''.join([nicehex(x) + ',' for x in ch]) for ch in characters]
-    lines = ['{'] + lines + ['}']
-    lines = [line + '\n' for line in lines]
-    return ''.join(lines)
-
-def basic_pretty_printer(characters):
-    lines = [' '.join(map(nicehex, ch)) for ch in characters]
-    lines = [line + '\n' for line in lines]
-    return ''.join(lines)
-
-def raw_pretty_printer(characters):
-    return data
-
 def output(file, chars, type):
     if type == 'raw':
         data = array.array('B')
