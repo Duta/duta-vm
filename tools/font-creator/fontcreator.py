@@ -8,6 +8,12 @@ expected_num_definitions = 128 - num_blank_characters
 def valid_line(line, search=re.compile(r'[^-#]').search):
     return len(line) == width and not bool(search(line))
 
+def pretty_print(characters):
+    lines = ['  %s' % ''.join(['0x%02x,' % x for x in ch]) for ch in characters]
+    lines = ['{'] + lines + ['}']
+    lines = [line + '\n' for line in lines]
+    return ''.join(lines)
+
 def parse_file(file):
     # Read all the character definitions
     characters = []
@@ -31,6 +37,7 @@ def parse_file(file):
             # Increment the line counter
             counter += 1
             counter %= height
+
     # Check there are the right number of character definitions
     if len(characters) != expected_num_definitions:
         print 'Expected %d character definitions, found %d. File "%s" not converted' % (expected_num_definitions, len(characters), file)
@@ -45,12 +52,10 @@ def parse_file(file):
     characters = map(lambda ch: map(lambda x: int(x, 2), ch), characters)
     # Add in all the unprintable characters and the space:
     characters = [[0] * width] * num_blank_characters + characters
+
     # Write to the output file
     with open('font_' + file, 'w') as outfile:
-        outfile.write('{\n')
-        for character in characters:
-            outfile.write('  ' + ''.join(['0x%02x,' % x for x in character]) + '\n')
-        outfile.write('}\n')
+        outfile.write(pretty_print(characters))
 
 if __name__ == '__main__':
     for arg in sys.argv[1:]:
