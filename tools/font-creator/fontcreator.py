@@ -19,16 +19,13 @@ def output(file, chars, type):
                 data.append(byte)
         with open(file, 'wb') as outfile:
             data.tofile(outfile)
-    else:
+    elif type in ['basic', 'array']:
         lines = []
         if type == 'basic':
             lines = [' '.join(map(nicehex, ch)) for ch in characters]
         elif type == 'array':
             lines = ['  ' + ''.join([nicehex(x) + ',' for x in ch]) for ch in characters]
             lines = ['{'] + lines + ['}']
-        else:
-            # Unknown output type, don't do anything
-            return
         lines = [line + '\n' for line in lines]
         with open(file, 'w') as outfile:
             outfile.write(''.join(lines))
