@@ -65,14 +65,21 @@ def parse_file(file):
     if len(characters) != expected_num_definitions:
         print 'Expected %d character definitions, found %d. File "%s" not converted' % (expected_num_definitions, len(characters), file)
         return
-    # Rotate the characters 90 degrees clockwise
-    characters = map(lambda ch: map(list, zip(*reversed(ch))), characters)
-    # Join the lines
-    characters = map(lambda ch: map(''.join, ch), characters)
-    # Replace the '-'s and '#'s with 0s and 1s
-    characters = map(lambda ch: map(lambda x: x.replace(zero_char, '0').replace(one_char, '1'), ch), characters)
-    # Convert the number strings ints
-    characters = map(lambda ch: map(lambda x: int(x, 2), ch), characters)
+
+    # Convert the characters
+    # (Note that the nested maps should be read backwards)
+    characters = map(
+        lambda ch:
+            # Convert the number strings to ints
+            map(lambda x: int(x, 2),
+            # Replace the '-'s and '#'s with 0s and 1s
+            map(lambda x: x.replace(zero_char, '0').replace(one_char, '1'),
+            # Join the lines
+            map(''.join,
+            # Rotate the characters 90 degrees clockwise
+            map(list, zip(*reversed(ch)))))),
+        characters)
+
     # Add in all the unprintable characters and the space:
     characters = [[0] * width] * num_blank_characters + characters
 
